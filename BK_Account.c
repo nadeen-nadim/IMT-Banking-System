@@ -107,12 +107,14 @@ Account* createAccount(int *state)
 		printf("Please enter client guardian national ID: ");
 		fgets(newAccount.guardianNationalId, 21, stdin);
 		newAccount.isGuardian = 'y';
+		len = (strlen(newAccount.guardianNationalId)-1);
 		if(newAccount.guardianNationalId < 14)
 		{
 			printf("Invalid guard  national ID");
 			*state =0;
 			return;
 		}
+
 	}
 	else
 	{
@@ -139,17 +141,19 @@ void makeTransaction(Node* head,Account* clientAccount)
 {
 	double otherAccountID =0;
 	double transferAmount =0;
-	Account recieverAccount;
+	int state =0;
+	
 	if(clientAccount->status != ACTIVE)
 	{
-		printf("Your account is not active. Please activate your account\n");
+		printf("Account is not active. Please activate account\n");
 	}
 	else{
 		printf("Please enter the bank account ID you want to transfer money to: ");
 		scanf("%lf",&otherAccountID);
-		if(getAccount(head,otherAccountID, &recieverAccount) == 1)
+		Account* recieverAccount = getAccount(head, otherAccountID, &state);
+		if(state == 1)
 		{
-			if(recieverAccount.status != ACTIVE)
+			if(recieverAccount->status != ACTIVE)
 			{
 				printf("Reciever account is not active\n");
 				return;
@@ -157,16 +161,18 @@ void makeTransaction(Node* head,Account* clientAccount)
 			else
 			{
 				printf("Please enter transfer amount: ");
-				scanf("%f",&transferAmount);
-				if(clientAccount->balance <transferAmount)
+				scanf("%l5f", &transferAmount);
+				if(clientAccount->balance < transferAmount)
 				{
-					printf("Insifficient Balance\n");
+					printf("Insufficient Balance\n");
 				}
 				else
 				{
-					recieverAccount.balance+=transferAmount;
-					clientAccount->balance-=transferAmount;
+					recieverAccount->balance += transferAmount;
+					clientAccount->balance -= transferAmount;
 					printf("Transaction Successful\n");
+					printf("r = %lf  c = %lf\n", recieverAccount->balance,clientAccount->balance);
+
 				}
 			}
 		}
@@ -186,7 +192,8 @@ Account* getAccount(Node *head,double recieverId, int* state)
 		{
 			printf("found\n");
 			*state = 1;
-			return &current->mAccount;
+			printf("state is %d\n", *state);
+			return (&current->mAccount);
 			
 		}
 		current = current->next;
@@ -377,7 +384,7 @@ void adminWindow(Node **head)
 				}
 				else
 				{
-					printf("Could not creat account\n");
+					printf("Could not create account\n");
 				}
 
 				break;
